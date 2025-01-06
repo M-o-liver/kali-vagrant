@@ -1,0 +1,178 @@
+---
+- name: Provision Kali with Extended Pentesting Tools
+  hosts: all
+  become: yes
+  vars:
+    # You can adjust these paths as needed
+    webroot: "/var/www/html/apps"
+    priv_esc_dir: "/usr/share/PrivEsc"
+
+  tasks:
+    ########################################################################
+    # Core Update & Packages
+    ########################################################################
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install essential packages
+      apt:
+        pkg:
+          - nmap
+          - gobuster
+          - burpsuite
+          - wireshark
+          - john
+          - hashcat
+          - sqlmap
+          - aircrack-ng
+          - openvpn
+          - tmux
+          - zsh
+          - git
+          - nginx
+        state: present
+
+    ########################################################################
+    # Web Server & asn1js
+    ########################################################################
+    - name: Start nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Ensure custom webroot directory exists
+      file:
+        path: "{{ webroot }}"
+        state: directory
+        mode: '0755'
+
+    - name: asn1js (via git clone into webroot)
+      git:
+        repo: https://github.com/ArcHound/asn1js
+        dest: "{{ webroot }}/asn1js"
+        force: yes
+
+    ########################################################################
+    # Payloads & Wordlists
+    ########################################################################
+    - name: Clone PayloadsAllTheThings
+      git:
+        repo: https://github.com/swisskyrepo/PayloadsAllTheThings
+        dest: "/usr/share/PayloadsAllTheThings"
+        force: yes
+
+    - name: Link PayloadsAllTheThings to wordlists
+      file:
+        src: "/usr/share/PayloadsAllTheThings"
+        dest: "/usr/share/wordlists/PayloadsAllTheThings"
+        state: link
+
+    - name: Clone SecLists
+      git:
+        repo: https://github.com/TH3xACE/SecLists
+        dest: "/usr/share/SecLists"
+        force: yes
+
+    - name: Link SecLists to wordlists
+      file:
+        src: "/usr/share/SecLists"
+        dest: "/usr/share/wordlists/SecLists"
+        state: link
+
+    ########################################################################
+    # Privilege Escalation Tools
+    ########################################################################
+    - name: Create PrivEsc folder
+      file:
+        path: "{{ priv_esc_dir }}"
+        state: directory
+
+    - name: Clone LinEnum
+      git:
+        repo: https://github.com/rebootuser/LinEnum
+        dest: "{{ priv_esc_dir }}/LinEnum"
+        force: yes
+
+    - name: Clone Linux Exploit Suggester
+      git:
+        repo: https://github.com/mzet-/linux-exploit-suggester
+        dest: "{{ priv_esc_dir }}/linux-exploit-suggester"
+        force: yes
+
+    - name: Clone PEAS repository
+      git:
+        repo: https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite
+        dest: "{{ priv_esc_dir }}/PEASS-ng"
+        force: yes
+
+    - name: Clone pspy
+      git:
+        repo: https://github.com/DominicBreuker/pspy
+        dest: "{{ priv_esc_dir }}/pspy"
+        force: yes
+
+    ########################################################################
+    # Windows Tools
+    ########################################################################
+    - name: Install evil-winrm gem
+      gem:
+        name: evil-winrm
+        state: latest
+
+    ########################################################################
+    # Existing Extras from Your Setup
+    ########################################################################
+    - name: Download linPEAS shell script
+      get_url:
+        url: https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh
+        dest: /opt/linpeas.sh
+        mode: '0755'
+
+    - name: Copy OpenVPN config file for TryHackMe
+      copy:
+        src: ./thm.ovpn
+        dest: /opt/thm.ovpn
+        mode: '0600'
+
+    - name: Add custom alias for TryHackMe VPN
+      blockinfile:
+        path: /home/vagrant/.bashrc
+        block: |
+          alias thm='openvpn /opt/thm.ovpn'
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - THM VPN"
+  
+    ########################################################################
+    # FoxyProxy Configuration
+    ########################################################################
+    - name: Install FoxyProxy Standard Extension
+      apt:
+        pkg:
+          - firefox-foxyproxy-standard
+        state: present
+
+    - name: Ensure Firefox profile directory exists
+      file:
+        path: /home/vagrant/.mozilla/firefox/*.default-release
+        state: directory
+        mode: '0755'
+
+    - name: Configure FoxyProxy settings
+      copy:
+        content: |
+          {
+            "proxies": [
+              {
+                "title": "Burp",
+                "type": "HTTP",
+                "address": "127.0.0.1",
+                "port": 8080,
+                "proxyDNS": true,
+                "active": true
+              }
+            ]
+          }
+        dest: /home/vagrant/.mozilla/firefox/*.default-release/foxyproxy.json
+        mode: '0644'
