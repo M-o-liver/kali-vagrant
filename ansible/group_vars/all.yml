@@ -1,0 +1,16 @@
+---
+# Directory paths
+priv_esc_dir: "/usr/share/PrivEsc"
+webroot: "/var/www/html/apps"
+firefox_profile_dir: "/home/vagrant/.mozilla/firefox/pentest.default"
+
+# Git repositories
+pentesting_tools:
+  - repo: "https://github.com/rebootuser/LinEnum"
+    dest: "{{ priv_esc_dir }}/LinEnum"
+  - repo: "https://github.com/mzet-/linux-exploit-suggester"
+    dest: "{{ priv_esc_dir }}/linux-exploit-suggester"
+  - repo: "https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite"
+    dest: "{{ priv_esc_dir }}/PEASS-ng"
+  - repo: "https://github.com/DominicBreuker/pspy"
+    dest: "{{ priv_esc_dir }}/pspy"

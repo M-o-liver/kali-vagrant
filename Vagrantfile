@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
   # Provision with Ansible inside the Kali guest (ansible_local)
   config.vm.provision "ansible_local" do |ansible|
     # The playbook to run on the Kali VM
-    ansible.playbook = "kali_provision.yml"
+    ansible.playbook = "ansible/main.yml"
 
     # Installs Ansible on the guest if not present
     ansible.install = true

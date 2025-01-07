@@ -1,0 +1,10 @@
+---
+- name: Provision Personal Kali Pentesting Environment
+  hosts: all
+  become: yes
+
+  roles:
+    - base
+    - pentesting
+    - wordlists
+    - browser

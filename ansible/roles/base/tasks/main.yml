@@ -1,0 +1,30 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install essential packages
+  apt:
+    pkg:
+      - nmap
+      - gobuster
+      - burpsuite
+      - wireshark
+      - john
+      - hashcat
+      - sqlmap
+      - aircrack-ng
+      - openvpn
+      - tmux
+      - zsh
+      - git
+      - nginx
+      - firefox-esr
+    state: present
+
+- name: Start nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes

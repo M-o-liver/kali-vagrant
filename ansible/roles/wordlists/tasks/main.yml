@@ -1,0 +1,23 @@
+---
+- name: Increase Git buffer size
+  shell: git config --global http.postBuffer 524288000
+  ignore_errors: yes
+
+- name: Clone wordlist repositories
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    force: yes
+    depth: 1
+  loop:
+    - { repo: 'https://github.com/swisskyrepo/PayloadsAllTheThings', dest: '/usr/share/PayloadsAllTheThings' }
+    - { repo: 'https://github.com/danielmiessler/SecLists', dest: '/usr/share/SecLists' }
+
+- name: Create wordlist symlinks
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  loop:
+    - { src: '/usr/share/PayloadsAllTheThings', dest: '/usr/share/wordlists/PayloadsAllTheThings' }
+    - { src: '/usr/share/SecLists', dest: '/usr/share/wordlists/SecLists' }

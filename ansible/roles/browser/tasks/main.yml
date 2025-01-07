@@ -1,0 +1,43 @@
+---
+- name: Install FoxyProxy Standard Extension
+  apt:
+    pkg:
+      - webext-foxyproxy
+    state: present
+
+- name: Ensure Firefox profile directory exists
+  file:
+    path: "/home/vagrant/.mozilla/firefox/*.default-release"
+    state: directory
+    mode: '0755'
+    owner: vagrant
+    group: vagrant
+
+- name: Configure FoxyProxy settings
+  copy:
+    content: |
+      {
+        "proxies": [
+          {
+            "title": "Burp",
+            "type": "HTTP",
+            "color": "#FF0000",
+            "address": "127.0.0.1",
+            "port": 8080,
+            "active": true,
+            "whitePatterns": [
+              {
+                "title": "*",
+                "pattern": "*",
+                "type": 1,
+                "protocols": 1
+              }
+            ]
+          }
+        ],
+        "mode": "patterns"
+      }
+    dest: "/home/vagrant/.mozilla/firefox/*.default-release/foxyproxy.json"
+    mode: '0644'
+    owner: vagrant
+    group: vagrant
