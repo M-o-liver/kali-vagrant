@@ -1,0 +1,15 @@
+---
+- name: Install tmux
+  apt:
+    name: tmux
+    state: present
+    update_cache: yes
+
+- name: Deploy tmux configuration
+  template:
+    src: tmux.conf.j2
+    dest: /home/vagrant/.tmux.conf
+    owner: vagrant
+    group: vagrant
+    mode: '0644'
+  become_user: vagrant

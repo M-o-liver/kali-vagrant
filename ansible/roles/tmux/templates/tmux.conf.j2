@@ -1,0 +1,29 @@
+# Enable mouse support
+set -g mouse on
+
+# Set history limit
+set -g history-limit 10000
+
+# Use Ctrl + a as prefix (instead of default Ctrl + b)
+set -g prefix C-a
+unbind C-b
+bind C-a send-prefix
+
+# Split panes (horizontal/vertical)
+bind | split-window -h
+bind - split-window -v
+
+# Style the status bar
+set -g status-bg colour234
+set -g status-fg colour136
+
+# Style window list
+setw -g window-status-current-format "#[bg=colour24] #I: #W #[fg=colour231]"
+setw -g window-status-format "#[fg=colour255] #I: #W "
+
+# Pane border styling
+set -g pane-border-style fg=colour239
+set -g pane-active-border-style fg=colour51
+
+# Automatically rename windows
+setw -g automatic-rename on

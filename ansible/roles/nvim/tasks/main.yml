@@ -1,0 +1,45 @@
+- name: Install Neovim dependencies
+  apt:
+    pkg:
+      - git
+      - make
+      - unzip
+      - gcc
+      - ripgrep
+      - xclip
+    state: present
+
+- name: Add Neovim unstable PPA
+  apt_repository:
+    repo: ppa:neovim-ppa/unstable
+    state: present
+
+- name: Install Neovim
+  apt:
+    name: neovim
+    state: latest
+    update_cache: yes
+
+- name: Ensure Neovim config directory exists
+  file:
+    path: "/home/vagrant/.config/nvim"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Clone kickstart.nvim
+  git:
+    repo: "https://github.com/nvim-lua/kickstart.nvim.git"
+    dest: "/home/vagrant/.config/nvim"
+    force: yes
+  become_user: vagrant
+
+- name: Set Neovim as default editor
+  blockinfile:
+    path: /home/vagrant/.bashrc
+    block: |
+      export EDITOR=nvim
+      export VISUAL=nvim
+      alias vim=nvim
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - NVIM CONFIG"
