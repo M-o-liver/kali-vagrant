@@ -1,4 +1,5 @@
-- name: Install Neovim dependencies
+---
+- name: Install required dependencies
   apt:
     pkg:
       - git
@@ -8,17 +9,17 @@
       - ripgrep
       - xclip
     state: present
-
-- name: Add Neovim unstable PPA
-  apt_repository:
-    repo: ppa:neovim-ppa/unstable
-    state: present
-
-- name: Install Neovim
-  apt:
-    name: neovim
-    state: latest
     update_cache: yes
+
+- name: Download Neovim AppImage using curl
+  shell: |
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+    chmod +x nvim.appimage
+    mv nvim.appimage /usr/local/bin/nvim
+  args:
+    chdir: /tmp
+  register: curl_nvim
+  changed_when: curl_nvim.rc == 0
 
 - name: Ensure Neovim config directory exists
   file:
@@ -35,11 +36,9 @@
     force: yes
   become_user: vagrant
 
-- name: Set Neovim as default editor
-  blockinfile:
-    path: /home/vagrant/.bashrc
-    block: |
-      export EDITOR=nvim
-      export VISUAL=nvim
-      alias vim=nvim
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - NVIM CONFIG"
+- name: Run Neovim headless to install plugins
+  become_user: vagrant
+  shell: nvim --headless "+sleep 1" +qa
+  args:
+    chdir: /home/vagrant
+  changed_when: false

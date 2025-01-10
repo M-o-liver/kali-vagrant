@@ -9,5 +9,5 @@
     - wordlists
     - browser
     - vpn
-    - editor
+    - nvim
     - tmux
